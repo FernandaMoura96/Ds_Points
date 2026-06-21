@@ -14,8 +14,8 @@ SELECT
 
   FROM transactions
 
-  WHERE dtTransaction < '2024-06-04'
-    AND dtTransaction >= DATE('2024-06-04', '-21 day')
+  WHERE dtTransaction < '{date}'
+    AND dtTransaction >= DATE('{date}', '-21 day')
 
   GROUP BY idCustomer
 
@@ -27,7 +27,7 @@ tb_idade AS (
 SELECT 
 
   t1.idCustomer,
-  CAST(MAX (julianday('2024-06-04')- julianday (t2.dtTransaction))
+  CAST(MAX (julianday('{date}')- julianday (t2.dtTransaction))
   AS INTEGER ) +1 AS idadeBaseDias
 
   FROM  
@@ -39,7 +39,8 @@ SELECT
   GROUP BY t1.idCustomer
 )
 
-SELECT t1.*,
+SELECT '{date}' AS dtRef,
+  t1.*,
   t2.idadeBaseDias,
   t3.flEmail
 FROM 
