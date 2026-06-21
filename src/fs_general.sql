@@ -1,14 +1,53 @@
+WITH tb_rfv AS 
+(
+
 SELECT
    idCustomer,
-  CAST( min(julianday('now') - julianday(dtTransaction)) AS INTEGER ) 
-  AS 'Rec_Dias',
 
- COUNT (DISTINCT DATE (dtTransaction )) AS 'freq_Dias '
- /*Contando as datas distinttas onde houveram transações*/
+   CAST( min(julianday('now') - julianday(dtTransaction)) AS INTEGER ) +1
+   AS 'Rec_Dias',
 
-FROM transactions
+   COUNT (DISTINCT DATE (dtTransaction )) AS 'freq_Dias '
+  /*Contando as datas distinttas onde houveram transações*/,
 
-WHERE dtTransaction < '2024-07-04'
-  AND dtTransaction >= DATE('2024-07-04', '-21 day')
+    SUM (CASE WHEN pointsTransaction > 0 THEN pointsTransaction END) AS pointsTotal 
 
-GROUP BY idCustomer
+  FROM transactions
+
+  WHERE dtTransaction < '2024-06-04'
+    AND dtTransaction >= DATE('2024-06-04', '-21 day')
+
+  GROUP BY idCustomer
+
+/*não conseguimos ver a idade do cliente na mesma query pois já reduzimos em 21 dias*/
+),
+
+tb_idade AS (
+
+SELECT 
+
+  t1.idCustomer,
+  CAST(MAX (julianday('2024-06-04')- julianday (t2.dtTransaction))
+  AS INTEGER ) +1 AS idadeBaseDias
+
+  FROM  
+
+  tb_rfv AS t1
+  LEFT JOIN transactions AS t2
+  ON t1.idCustomer = t2.idCustomer
+
+  GROUP BY t1.idCustomer
+)
+
+SELECT t1.*,
+  t2.idadeBaseDias,
+  t3.flEmail
+FROM 
+ tb_rfv AS t1 
+
+LEFT JOIN tb_idade AS t2 ON 
+t1.idCustomer = t2.idCustomer
+
+LEFT JOIN customers AS t3 ON
+t2.idCustomer = t3.idCustomer
+
