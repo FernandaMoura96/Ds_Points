@@ -1,6 +1,7 @@
 WITH tb_rfv AS 
 (
 
+
 SELECT
    idCustomer,
 
