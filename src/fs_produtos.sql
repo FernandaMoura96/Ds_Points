@@ -6,9 +6,12 @@ WITH tb_transaction_products AS (
     FROM transactions AS t1
     LEFT JOIN transactions_product AS t2 
         ON t1.idTransaction = t2.idTransaction
-    WHERE t1.dtTransaction < '2024-06-05'
-      AND t1.dtTransaction >= DATE('2024-06-05', '-21 day')
-)
+    WHERE t1.dtTransaction < '{date}'
+      AND t1.dtTransaction >= DATE('{date}', '-21 day')
+),
+
+tb_share AS (
+
 
 SELECT 
     idCustomer,
@@ -29,8 +32,9 @@ SELECT
     SUM(CASE WHEN NameProduct = 'Troca de Pontos StreamElements' THEN pointsTransaction ELSE 0 END) AS PTSTrocaStreamElements,
     SUM(CASE WHEN NameProduct = 'Presença Streak' THEN pointsTransaction ELSE 0 END) AS PTSPresençaStreak,
     SUM(CASE WHEN NameProduct = 'Airflow Lover' THEN pointsTransaction ELSE 0 END) AS PTSAirflowLover,
-    SUM(CASE WHEN NameProduct = 'R Lover' THEN pointsTransaction ELSE 0 END) AS PTSRLover
-,
+    SUM(CASE WHEN NameProduct = 'R Lover' THEN pointsTransaction ELSE 0 END) AS PTSRLover,
+
+
   --Agrupamento de share
     1.0 * SUM(CASE WHEN NameProduct = 'ChatMessage' THEN pointsTransaction ELSE 0 END) / SUM(QuantityProduct)  AS pctChatMessage,
     1.0 * SUM(CASE WHEN NameProduct = 'Lista de presença' THEN pointsTransaction ELSE 0 END)/ SUM(QuantityProduct)  AS pctListapresença,
@@ -44,3 +48,48 @@ SELECT
 
 FROM tb_transaction_products
 GROUP BY idCustomer
+),
+
+-- Agrupando produtos
+
+tb_group AS 
+(
+
+    SELECT
+        idCustomer,
+        NameProduct,
+        SUM(QuantityProduct) AS QtD ,
+        SUM(pointsTransaction) AS points
+
+    FROM tb_transaction_products
+
+    GROUP BY idCustomer,NameProduct
+),
+
+-- window function (rankeando os produtos mais usados por cada entidade)
+tb_rn AS (
+
+SELECT * ,
+ROW_NUMBER () OVER (PARTITION BY idCustomer ORDER BY QtD DESC , points DESC) AS rn
+
+FROM tb_group 
+),
+
+--selecionando o produto mais comprado por cada um, ordendo 1 por entidade, e join com o share de cada.
+tb_produto_max AS
+(
+SELECT * 
+
+FROM  tb_rn
+
+WHERE rn =1)
+
+SELECT  t1.*,
+        t2.NameProduct
+
+FROM tb_share AS t1
+
+LEFT JOIN 
+tb_produto_max AS t2
+
+ON t1.idCustomer = t2.idCustomer
