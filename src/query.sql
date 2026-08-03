@@ -1,4 +1,3 @@
-SELECT dtRef,
+SELECT
     count(*) 
-FROM fs_general 
-GROUP BY 1
+FROM fs_transacoes

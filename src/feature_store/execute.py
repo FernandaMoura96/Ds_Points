@@ -50,14 +50,16 @@ def ingest_date(query, table, dt):
 origin_engine = sqlalchemy.create_engine("sqlite:///../../data/database.db")
 target_engine = sqlalchemy.create_engine("sqlite:///../../data/feature_store.db")
 
-#%%
 # now = datetime.datetime.now().strftime("%Y-%m-%d")
 #funcionaria como valor default se os dados permanecessem se atualizando dia a dia. 
+#caso queira uma tabela com um data especifica, basta adicionar os paramêtros.
+
+now=datetime.datetime.now().strftime("%Y-%m-%d")
 
 parser = argparse.ArgumentParser()
 parser.add_argument('--feature_store', '-f', help='Nome da feature store', type=str)
-parser.add_argument('--start', '-s', help='data de inicio')
-parser.add_argument('--stop', '-p', help='data de fim')
+parser.add_argument('--start', '-s', help='data de inicio',default=now)
+parser.add_argument('--stop', '-p', help='data de fim',default= now)
 
 args = parser.parse_args()
 
@@ -68,4 +70,3 @@ dates = date_range(args.start, args.stop)
 
 for i in tqdm(dates):
     ingest_date(query, args.feature_store, i)
-# %%
