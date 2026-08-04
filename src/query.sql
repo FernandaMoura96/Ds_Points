@@ -1,3 +1,17 @@
 SELECT
-    count(*) 
-FROM fs_transacoes
+    t1.dtRef,
+    t1.idCustomer,
+    CASE WHEN t2.idCustomer IS NULL THEN 1 ELSE 0 END AS flChurn 
+
+FROM fs_general AS t1 
+
+LEFT JOIN fs_general AS t2
+ON t1.idCustomer = t2.idCustomer
+AND t1.dtRef = DATE(t2.dtRef, '-21 day')
+
+WHERE t1.dtRef < DATE ('2024-06-06', '-21 day')
+AND strftime ('%d' , t1.dtRef) = '01'
+
+ORDER BY 1,2
+
+--Query que define modelo de predição de churn
