@@ -27,10 +27,10 @@ Desenvolver uma solução analítica capaz de processar os logs de interação, 
 4. Coloque o arquivo na pasta `/data` e execute os notebooks na sequência sugerida.
 
 ## 📈 Principais Insights
-*(Preencha esta seção à medida que avançar no projeto, por exemplo:)*
+
 * Identificação dos usuários mais engajados.
-* Correlação entre frequência de lives e acúmulo de pontos.
-* Sazonalidade das interações.
+* 
+* 
 
 ## 👤 Autor
 **Fernanda Cristina Silva Moura**
